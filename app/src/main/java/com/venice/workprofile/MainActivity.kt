@@ -26,7 +26,7 @@ import java.util.TimeZone
 class MainActivity : AppCompatActivity() {
 
     companion object {
-        private const val MIGRATE_PRIMARY_ACCOUNT = true
+        private const val MIGRATE_PRIMARY_ACCOUNT = false
     }
 
     private lateinit var binding: ActivityMainBinding
@@ -55,7 +55,11 @@ class MainActivity : AppCompatActivity() {
                 toast(getString(R.string.provision_ok))
                 render()
             } else {
-                toast(getString(R.string.provision_failed, describeFailure(result.resultCode, result.data)))
+                AlertDialog.Builder(this@MainActivity)
+                    .setTitle("Provisioning failed")
+                    .setMessage(describeFailure(result.resultCode, result.data))
+                    .setPositiveButton("OK", null)
+                    .show()
                 render()
             }
         }
