@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Workspace Provisioner</string>
+    <string name="org_name">Venice Workspace</string>
+    <string name="profile_name">Venice Workspace</string>
+
+    <string name="admin_description">Creates and manages an isolated work profile on this device.</string>
+    <string name="admin_explanation">Device administrator rights are required so this app can act as profile owner of the new, isolated work profile.</string>
+
+    <string name="subtitle">Creates a separate managed profile with its own storage, contacts and app space. The primary user is never modified.</string>
+
+    <string name="state_idle">Not provisioned</string>
+    <string name="state_idle_detail">No work profile owned by this app exists on the device.</string>
+    <string name="state_no_admin">Device administrator not granted</string>
+    <string name="state_no_admin_detail">The provisioning intent requires this app to be an active device admin in the primary user first.</string>
+    <string name="state_provisioning">Provisioning…</string>
+    <string name="state_provisioning_detail">The system setup flow is running. Do not leave the device.</string>
+    <string name="state_active">Workspace active</string>
+    <string name="state_active_detail">Profile owner of “%1$s”. Storage, contacts and apps are fully isolated from the primary user.</string>
+    <string name="state_exists">A work profile already exists</string>
+    <string name="state_exists_detail">This device is already managed by %1$s. Only one work profile can exist per device — remove the existing one first.</string>
+    <string name="state_in_profile_not_owner">Inside a profile, but not profile owner</string>
+
+    <string name="action_grant_admin">Grant device admin</string>
+    <string name="action_provision">Launch / Provision Workspace</string>
+    <string name="action_open_settings">Open work profile settings</string>
+    <string name="action_remove">Remove workspace</string>
+
+    <string name="remove_detail">Removes this app as profile owner. The profile itself stays until you delete it in Settings → Passwords &amp; accounts → Work profile → Remove work profile.</string>
+
+    <string name="admin_declined">Device admin not granted — provisioning cannot start.</string>
+    <string name="provision_failed">Provisioning failed: %1$s</string>
+    <string name="provision_ok">Work profile created. Finalizing…</string>
+    <string name="no_handler">No system activity handles this intent. See the adb fallback.</string>
+    <string name="removed">Profile owner removed.</string>
+
+    <string name="diag">user=%1$d  admin=%2$b  profileOwner=%3$b  otherProfiles=%4$d  owners=%5$s</string>
+</resources>
