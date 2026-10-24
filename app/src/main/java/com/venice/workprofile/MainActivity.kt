@@ -95,7 +95,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.diagnostics.text = getString(
             R.string.diag,
-            UserHandle.myUserId(),
+            Profiles.currentUserId(),
             adminActive,
             isOwner,
             existing.size,

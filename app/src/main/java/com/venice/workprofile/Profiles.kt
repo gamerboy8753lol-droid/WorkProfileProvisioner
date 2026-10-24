@@ -16,6 +16,11 @@ object Profiles {
     /** Non-null primitive class, for reflection signatures. */
     private val INT_CLASS: Class<*> = java.lang.Integer.TYPE
 
+    /** Not exposed in every compile SDK; used when available. */
+    private val getIdentifier = runCatching {
+        UserHandle::class.java.getMethod("getIdentifier")
+    }.getOrNull()
+
     fun dpm(context: Context): DevicePolicyManager =
         context.getSystemService(DevicePolicyManager::class.java)
 
@@ -30,18 +35,22 @@ object Profiles {
     fun isDeviceOwnerHere(context: Context): Boolean =
         runCatching { dpm(context).isDeviceOwnerApp(context.packageName) }.getOrDefault(false)
 
+    /** User id behind a handle. UserHandle.hashCode() returns the raw user id. */
+    fun userIdOf(user: UserHandle): Int =
+        runCatching { getIdentifier?.invoke(user) as? Int }.getOrNull() ?: user.hashCode()
+
+    fun currentUserId(): Int = userIdOf(Process.myUserHandle())
+
     /** True when the process runs inside a managed profile. */
     fun isRunningInProfile(context: Context): Boolean {
-        val um = context.getSystemService(UserManager::class.java)
-        if (um != null) {
-            val managed: Boolean? = runCatching {
-                UserManager::class.java
-                    .getMethod("isManagedProfile")
-                    .invoke(um) as? Boolean
-            }.getOrNull()
-            if (managed != null) return managed
-        }
-        return UserHandle.myUserId() != 0
+        if (isProfileOwnerHere(context)) return true
+        val um = context.getSystemService(UserManager::class.java) ?: return false
+        val managed: Boolean? = runCatching {
+            UserManager::class.java
+                .getMethod("isManagedProfile")
+                .invoke(um) as? Boolean
+        }.getOrNull()
+        return managed ?: false
     }
 
     /** Other users that are managed profiles, excluding the calling user. */
@@ -49,9 +58,8 @@ object Profiles {
         val um = context.getSystemService(UserManager::class.java) ?: return emptyList()
         val users: List<UserHandle> =
             runCatching { um.userProfiles }.getOrNull() ?: return emptyList()
-        return users
-            .filter { it != Process.myUserHandle() }
-            .filter { isManagedProfile(context, it) }
+        val me = Process.myUserHandle()
+        return users.filter { it != me }.filter { isManagedProfile(context, it) }
     }
 
     private fun isManagedProfile(context: Context, user: UserHandle): Boolean {
@@ -59,7 +67,7 @@ object Profiles {
         val managed: Boolean? = runCatching {
             UserManager::class.java
                 .getMethod("isManagedProfile", INT_CLASS)
-                .invoke(um, user.identifier) as? Boolean
+                .invoke(um, userIdOf(user)) as? Boolean
         }.getOrNull()
         if (managed != null) return managed
         return profileOwnerOf(context, user) != null
@@ -68,7 +76,7 @@ object Profiles {
     fun profileOwnerOf(context: Context, user: UserHandle): ComponentName? = runCatching {
         DevicePolicyManager::class.java
             .getMethod("getProfileOwnerAsUser", INT_CLASS)
-            .invoke(dpm(context), user.identifier) as? ComponentName
+            .invoke(dpm(context), userIdOf(user)) as? ComponentName
     }.getOrNull()
 
     fun saveProfileName(context: Context, name: String) {
